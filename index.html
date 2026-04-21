@@ -1,0 +1,784 @@
+import { useState, useRef, useCallback, useEffect } from "react";
+
+const STAFF = [
+  {dept:"복지재단",name:"정형석",rank:"상임대표"},
+  {dept:"복지부문",name:"한상호",rank:"복지부문장"},
+  {dept:"경영지원본부",name:"정성찬",rank:"본부장"},
+  {dept:"경영지원본부",name:"김학수",rank:"대리"},
+  {dept:"경영지원본부",name:"박주미",rank:"간사"},
+  {dept:"경영지원본부",name:"차정현",rank:"과장(팀장)"},
+  {dept:"경영지원본부",name:"김태우",rank:"대리"},
+  {dept:"경영지원본부",name:"오승영",rank:"대리"},
+  {dept:"경영지원본부",name:"장정희",rank:"-"},
+  {dept:"기획실",name:"조요셉",rank:"과장(실장)"},
+  {dept:"기획실",name:"송혜란",rank:"과장(팀장)"},
+  {dept:"기획실",name:"노다은",rank:"간사"},
+  {dept:"기획실",name:"석진한",rank:"대리"},
+  {dept:"기획실",name:"이서진",rank:"간사"},
+  {dept:"인재경영실",name:"이현진",rank:"부장(실장)"},
+  {dept:"인재경영실",name:"조은애",rank:"과장(팀장)"},
+  {dept:"인재경영실",name:"나경미",rank:"과장"},
+  {dept:"인재경영실",name:"김지은",rank:"간사"},
+  {dept:"인재경영실",name:"손경빈",rank:"간사"},
+  {dept:"인재경영실",name:"문정은",rank:"과장(팀장)"},
+  {dept:"인재경영실",name:"김진일",rank:"간사"},
+  {dept:"인재경영실",name:"노민정",rank:"간사"},
+  {dept:"재무실",name:"권순자",rank:"부장(실장)"},
+  {dept:"재무실",name:"강지수",rank:"과장(팀장)"},
+  {dept:"재무실",name:"고지후",rank:"과장(팀장)"},
+  {dept:"재무실",name:"류혜준",rank:"간사"},
+  {dept:"재무실",name:"최선우",rank:"간사"},
+  {dept:"재무실",name:"권예진",rank:"간사"},
+  {dept:"재무실",name:"박재연",rank:"대리"},
+  {dept:"재무실",name:"조아영(B)",rank:"대리"},
+  {dept:"커뮤니케이션실",name:"이수은",rank:"부장(실장)"},
+  {dept:"커뮤니케이션실",name:"강선덕",rank:"홍보위원장"},
+  {dept:"커뮤니케이션실",name:"강희연",rank:"대리(팀장)"},
+  {dept:"커뮤니케이션실",name:"박지수",rank:"간사"},
+  {dept:"커뮤니케이션실",name:"오솔길",rank:"과장(팀장)"},
+  {dept:"커뮤니케이션실",name:"유종화",rank:"간사"},
+  {dept:"커뮤니케이션실",name:"조예본",rank:"간사"},
+  {dept:"커뮤니케이션실",name:"노혜진",rank:"간사"},
+  {dept:"커뮤니케이션실",name:"김봉섭",rank:"과장(팀장)"},
+  {dept:"커뮤니케이션실",name:"배용호",rank:"과장"},
+  {dept:"커뮤니케이션실",name:"서시내",rank:"대리"},
+  {dept:"커뮤니케이션실",name:"장설아",rank:"대리"},
+  {dept:"커뮤니케이션실",name:"임정인",rank:"간사"},
+  {dept:"미션사업실·후원협력실",name:"고성원",rank:"본부장"},
+  {dept:"미디어사업실",name:"윤성우",rank:"부장(실장)"},
+  {dept:"미디어사업실",name:"김민아",rank:"과장(팀장)"},
+  {dept:"미디어사업실",name:"전정우",rank:"대리"},
+  {dept:"미디어사업실",name:"황재원",rank:"대리"},
+  {dept:"미디어사업실",name:"최영은",rank:"간사"},
+  {dept:"온라인사업실",name:"박송희",rank:"과장(실장)"},
+  {dept:"온라인사업실",name:"임경아",rank:"과장(팀장)"},
+  {dept:"온라인사업실",name:"전언지",rank:"대리"},
+  {dept:"온라인사업실",name:"임차영",rank:"간사"},
+  {dept:"온라인사업실",name:"송시명",rank:"대리"},
+  {dept:"온라인사업실",name:"이민아",rank:"간사"},
+  {dept:"온라인사업실",name:"방기빈",rank:"대리"},
+  {dept:"온라인사업실",name:"문한나",rank:"과장(팀장)"},
+  {dept:"온라인사업실",name:"이성은",rank:"간사"},
+  {dept:"온라인사업실",name:"김민교",rank:"간사"},
+  {dept:"온라인사업실",name:"정이든",rank:"과장(팀장)"},
+  {dept:"온라인사업실",name:"유은예",rank:"대리"},
+  {dept:"후원협력실",name:"유경민",rank:"과장(팀장)"},
+  {dept:"후원협력실",name:"김다은(B)",rank:"대리"},
+  {dept:"후원협력실",name:"유은혜",rank:"대리"},
+  {dept:"후원협력실",name:"윤주영",rank:"대리"},
+  {dept:"후원협력실",name:"김소희(B)",rank:"간사"},
+  {dept:"후원협력실",name:"권해란",rank:"대리"},
+  {dept:"후원협력실",name:"경지혜",rank:"과장(팀장)"},
+  {dept:"후원협력실",name:"이예준",rank:"대리"},
+  {dept:"후원협력실",name:"이가을",rank:"대리"},
+  {dept:"후원협력실",name:"김지윤",rank:"간사"},
+  {dept:"후원협력실",name:"박하진",rank:"간사"},
+  {dept:"후원협력실",name:"박한별",rank:"대리"},
+  {dept:"후원협력실",name:"이현선",rank:"간사"},
+  {dept:"후원협력실",name:"최미정",rank:"간사"},
+  {dept:"후원협력실",name:"구주현",rank:"간사"},
+  {dept:"후원협력실",name:"김서윤",rank:"간사"},
+  {dept:"후원협력실",name:"조윤정",rank:"간사"},
+  {dept:"후원협력실",name:"석원영",rank:"과장(팀장)"},
+  {dept:"후원협력실",name:"권용일",rank:"대리"},
+  {dept:"후원협력실",name:"정현석",rank:"대리"},
+  {dept:"후원협력실",name:"김소은",rank:"간사"},
+  {dept:"대외협력실",name:"연보라",rank:"부장(실장)"},
+  {dept:"대외협력실",name:"안석환",rank:"대리(팀장)"},
+  {dept:"대외협력실",name:"최인기",rank:"대리"},
+  {dept:"대외협력실",name:"김종진",rank:"대리"},
+  {dept:"대외협력실",name:"김현준",rank:"간사"},
+  {dept:"대외협력실",name:"김건우",rank:"간사"},
+  {dept:"대외협력실",name:"고혜련",rank:"간사"},
+  {dept:"대외협력실",name:"신선호",rank:"간사"},
+  {dept:"대외협력실",name:"김소빈",rank:"간사"},
+  {dept:"대외협력실",name:"홍영서",rank:"간사"},
+  {dept:"대외협력실",name:"유선교",rank:"간사"},
+  {dept:"대외협력실",name:"한은선",rank:"간사"},
+  {dept:"대외협력실",name:"김한중",rank:"간사"},
+  {dept:"대외협력실",name:"이요한",rank:"간사"},
+  {dept:"대외협력실",name:"최예진",rank:"간사"},
+  {dept:"대외협력실",name:"최휘규",rank:"간사"},
+  {dept:"대외협력실",name:"박재경",rank:"간사"},
+  {dept:"대외협력실",name:"임지륜",rank:"간사"},
+  {dept:"대외협력실",name:"조아영(A)",rank:"간사"},
+  {dept:"대외협력실",name:"황태희",rank:"간사"},
+  {dept:"대외협력실",name:"김세례",rank:"대리"},
+  {dept:"대외협력실",name:"조재영",rank:"대리"},
+  {dept:"대외협력실",name:"한대인",rank:"대리"},
+  {dept:"대외협력실",name:"이현옥",rank:"간사"},
+  {dept:"대외협력실",name:"이광수",rank:"간사"},
+  {dept:"대외협력실",name:"안미란",rank:"대리"},
+  {dept:"대외협력실",name:"배기웅",rank:"간사"},
+  {dept:"대외협력실",name:"양승찬",rank:"간사"},
+  {dept:"대외협력실",name:"손효정",rank:"간사"},
+  {dept:"대외협력실",name:"이창조",rank:"간사"},
+  {dept:"대외협력실",name:"정우섭",rank:"지부장"},
+  {dept:"대외협력실",name:"고은별",rank:"간사"},
+  {dept:"대외협력실",name:"조유미",rank:"간사"},
+  {dept:"대외협력실",name:"김형주",rank:"대리"},
+  {dept:"대외협력실",name:"김남철",rank:"대리"},
+  {dept:"대외협력실",name:"권순명",rank:"간사"},
+  {dept:"대외협력실",name:"서영민",rank:"간사"},
+  {dept:"대외협력실",name:"유진",rank:"간사"},
+  {dept:"대외협력실",name:"김아영",rank:"지부장"},
+  {dept:"대외협력실",name:"김은지",rank:"대리"},
+  {dept:"대외협력실",name:"이경욱",rank:"대리"},
+  {dept:"대외협력실",name:"황나현",rank:"대리"},
+  {dept:"대외협력실",name:"차여경",rank:"간사"},
+  {dept:"대외협력실",name:"이민우",rank:"간사"},
+  {dept:"대외협력실",name:"박상수",rank:"간사"},
+  {dept:"대외협력실",name:"김봉주",rank:"간사"},
+  {dept:"대외협력실",name:"나명훈",rank:"대리"},
+  {dept:"대외협력실",name:"이애진",rank:"대리"},
+  {dept:"대외협력실",name:"이지호",rank:"간사"},
+  {dept:"대외협력실",name:"신민지",rank:"간사"},
+  {dept:"대외협력실",name:"신지혜",rank:"간사"},
+  {dept:"대외협력실",name:"임지혜",rank:"간사"},
+  {dept:"대외협력실",name:"정은지",rank:"간사"},
+  {dept:"대외협력실",name:"엄상현",rank:"대리"},
+  {dept:"대외협력실",name:"강병권",rank:"간사"},
+  {dept:"ESG협력실",name:"조성결",rank:"과장(실장)"},
+  {dept:"ESG협력실",name:"황슬기",rank:"과장(팀장)"},
+  {dept:"ESG협력실",name:"이은용",rank:"대리"},
+  {dept:"ESG협력실",name:"김지수",rank:"대리"},
+  {dept:"ESG협력실",name:"박지혜",rank:"대리"},
+  {dept:"ESG협력실",name:"서지민",rank:"대리"},
+  {dept:"ESG협력실",name:"이수진",rank:"간사"},
+  {dept:"ESG협력실",name:"이수진(B)",rank:"간사"},
+  {dept:"ESG협력실",name:"심현진",rank:"대리"},
+  {dept:"ESG협력실",name:"조유나",rank:"대리(팀장)"},
+  {dept:"ESG협력실",name:"민주원",rank:"대리"},
+  {dept:"ESG협력실",name:"하은성",rank:"대리"},
+  {dept:"ESG협력실",name:"장하영(A)",rank:"간사"},
+  {dept:"ESG협력실",name:"이시온",rank:"간사"},
+  {dept:"ESG협력실",name:"김호경",rank:"과장(팀장)"},
+  {dept:"ESG협력실",name:"부예은",rank:"대리"},
+  {dept:"ESG협력실",name:"장하영(B)",rank:"대리"},
+  {dept:"본부",name:"황대벽",rank:"본부장"},
+  {dept:"국내사업실",name:"김래홍",rank:"과장(실장)"},
+  {dept:"국내사업실",name:"장희수",rank:"과장(팀장)"},
+  {dept:"국내사업실",name:"양철훈",rank:"대리"},
+  {dept:"국내사업실",name:"최재민",rank:"대리"},
+  {dept:"국내사업실",name:"조영훈",rank:"대리"},
+  {dept:"국내사업실",name:"조수연",rank:"간사"},
+  {dept:"국내사업실",name:"고민준",rank:"대리"},
+  {dept:"국내사업실",name:"정힘찬",rank:"대리"},
+  {dept:"국내사업실",name:"강은혜",rank:"대리"},
+  {dept:"국내사업실",name:"안하영",rank:"간사"},
+  {dept:"국내사업실",name:"엄효상",rank:"간사"},
+  {dept:"국내사업실",name:"박우홍",rank:"간사"},
+  {dept:"국내사업실",name:"서다인",rank:"간사"},
+  {dept:"국내사업실",name:"우요섭",rank:"과장(팀장)"},
+  {dept:"국내사업실",name:"조승혜",rank:"대리"},
+  {dept:"국내사업실",name:"임재희",rank:"대리"},
+  {dept:"밀알문화예술센터",name:"정규태",rank:"과장(센터장)"},
+  {dept:"밀알문화예술센터",name:"김민정",rank:"과장(팀장)"},
+  {dept:"밀알문화예술센터",name:"백승진",rank:"대리"},
+  {dept:"밀알문화예술센터",name:"강연구",rank:"간사"},
+  {dept:"밀알문화예술센터",name:"명상우",rank:"대리(팀장)"},
+  {dept:"밀알문화예술센터",name:"김한솔(A)",rank:"간사"},
+  {dept:"밀알문화예술센터",name:"최미은",rank:"간사"},
+  {dept:"밀알문화예술센터",name:"진승연",rank:"-"},
+  {dept:"밀알장애인활동지원센터",name:"구자영",rank:"소장"},
+  {dept:"밀알장애인활동지원센터",name:"유권신",rank:"사무국장"},
+  {dept:"밀알장애인활동지원센터",name:"김은비",rank:"대리(팀장)"},
+  {dept:"밀알장애인활동지원센터",name:"정우림",rank:"대리"},
+  {dept:"밀알장애인활동지원센터",name:"홍혜원",rank:"간사"},
+  {dept:"밀알장애인활동지원센터",name:"박은진",rank:"대리(팀장)"},
+  {dept:"밀알장애인활동지원센터",name:"권혜주",rank:"간사"},
+  {dept:"밀알장애인활동지원센터",name:"신예지",rank:"간사"},
+  {dept:"밀알장애인활동지원센터",name:"임경천",rank:"간사"},
+  {dept:"밀알장애인활동지원센터",name:"장지현",rank:"간사"},
+  {dept:"밀알장애인활동지원센터",name:"정하연",rank:"간사"},
+  {dept:"밀알장애인활동지원센터",name:"허정모",rank:"간사"},
+  {dept:"밀알장애인활동지원센터",name:"정춘자",rank:"-"},
+  {dept:"주간활동서비스센터",name:"정우석",rank:"과장(센터장)"},
+  {dept:"주간활동서비스센터",name:"김성민",rank:"대리"},
+  {dept:"주간활동서비스센터",name:"손승현",rank:"간사"},
+  {dept:"주간활동서비스센터",name:"김영현",rank:"대리"},
+  {dept:"주간활동서비스센터",name:"박채원",rank:"간사"},
+  {dept:"주간활동서비스센터",name:"이한별",rank:"간사"},
+  {dept:"헬렌켈러센터",name:"홍유미",rank:"과장(센터장)"},
+  {dept:"헬렌켈러센터",name:"임민경",rank:"과장"},
+  {dept:"헬렌켈러센터",name:"박새아",rank:"간사"},
+  {dept:"헬렌켈러센터",name:"최혜인",rank:"간사"},
+  {dept:"헬렌켈러센터",name:"박혜경",rank:"대리(팀장)"},
+  {dept:"헬렌켈러센터",name:"이진호",rank:"간사"},
+  {dept:"헬렌켈러 시청각장애인학습지원센터",name:"구영호",rank:"과장(센터장)"},
+  {dept:"헬렌켈러 시청각장애인학습지원센터",name:"손창환",rank:"간사"},
+  {dept:"헬렌켈러 시청각장애인학습지원센터",name:"홍수경",rank:"대리"},
+  {dept:"헬렌켈러 시청각장애인학습지원센터",name:"백수정",rank:"대리"},
+  {dept:"헬렌켈러 시청각장애인학습지원센터",name:"정연주",rank:"간사"},
+  {dept:"헬렌켈러 시청각장애인학습지원센터",name:"김다연",rank:"간사"},
+  {dept:"국제사업실",name:"김대현",rank:"부장(실장)"},
+  {dept:"국제사업실",name:"김광훈",rank:"과장(팀장)"},
+  {dept:"국제사업실",name:"이하람",rank:"대리"},
+  {dept:"국제사업실",name:"오지원",rank:"간사"},
+  {dept:"국제사업실",name:"박예은",rank:"간사"},
+  {dept:"국제사업실",name:"장영준",rank:"간사(인턴)"},
+  {dept:"국제사업실",name:"정은실",rank:"PM"},
+  {dept:"국제사업실",name:"서현영",rank:"간사(인턴)"},
+  {dept:"국제사업실",name:"전예지",rank:"대리"},
+  {dept:"국제사업실",name:"최재원",rank:"간사"},
+  {dept:"국제사업실",name:"박소연",rank:"간사(인턴)"},
+  {dept:"국제사업실",name:"이예은",rank:"대리(팀장)"},
+  {dept:"국제사업실",name:"김미정",rank:"대리"},
+  {dept:"국제사업실",name:"김민서",rank:"간사(인턴)"},
+  {dept:"국제사업실",name:"김해영",rank:"희망사업본부장"},
+  {dept:"국제사업실",name:"전혜진",rank:"간사"},
+  {dept:"국제사업실",name:"김유진(해외)",rank:"간사"},
+  {dept:"국제사업실",name:"정문수",rank:"지부장(파견)"},
+  {dept:"국제사업실",name:"김태경",rank:"간사"},
+  {dept:"국제사업실",name:"김하라",rank:"PM"},
+  {dept:"국제사업실",name:"정옥선",rank:"사무장"},
+  {dept:"국제사업실",name:"금채원",rank:"PM"},
+  {dept:"국제사업실",name:"안형구",rank:"지부장"},
+  {dept:"국제사업실",name:"김진영",rank:"PM"},
+  {dept:"국제사업실",name:"김기훈",rank:"PM"},
+  {dept:"국제사업실",name:"박소미",rank:"PM"},
+  {dept:"국제사업실",name:"최현우",rank:"PM"},
+  {dept:"국제사업실",name:"경제현",rank:"대리"},
+  {dept:"국제사업실",name:"백창희",rank:"PM"},
+  {dept:"국제사업실",name:"배은선",rank:"과장(지부장)"},
+  {dept:"국제사업실",name:"정혜수",rank:"PM"},
+  {dept:"국제사업실",name:"이지훈",rank:"간사"},
+  {dept:"국제사업실",name:"이규원",rank:"간사"},
+  {dept:"국제사업실",name:"김소희(국제)",rank:"간사"},
+  {dept:"굿윌부문",name:"한상욱",rank:"굿윌부문장"},
+  {dept:"굿윌부문",name:"홍세원",rank:"굿윌기획본부장"},
+  {dept:"굿윌부문",name:"배국환",rank:"부장"},
+  {dept:"굿윌부문",name:"최정아",rank:"디자인실장"},
+  {dept:"굿윌부문",name:"한신근",rank:"매니저"},
+  {dept:"굿윌부문",name:"유의성",rank:"대리"},
+  {dept:"굿윌부문",name:"김영덕",rank:"과장(팀장)"},
+  {dept:"굿윌부문",name:"최시온",rank:"간사"},
+  {dept:"굿윌부문",name:"김한솔(B)",rank:"간사"},
+  {dept:"굿윌부문",name:"황서영",rank:"간사"},
+  {dept:"굿윌부문",name:"조진석",rank:"과장(팀장)"},
+  {dept:"굿윌부문",name:"채민혜",rank:"간사"},
+  {dept:"굿윌부문",name:"김예찬",rank:"간사"},
+  {dept:"굿윌부문",name:"노태수",rank:"간사"},
+  {dept:"굿윌부문",name:"김영갑",rank:"센터장"},
+  {dept:"굿윌부문",name:"김정환",rank:"대리"},
+  {dept:"굿윌부문",name:"나용수",rank:"과장"},
+  {dept:"굿윌부문",name:"황인관",rank:"간사"},
+  {dept:"굿윌부문",name:"박명호",rank:"감사실장"},
+  {dept:"굿윌부문",name:"이준형",rank:"과장(팀장)"},
+  {dept:"굿윌부문",name:"한지은",rank:"간사"},
+  {dept:"굿윌부문",name:"최민선",rank:"간사"},
+  {dept:"굿윌부문",name:"한정섭",rank:"매니저"},
+];
+
+// 표시 라벨: 부서 이름 직급
+const staffLabel = s => `${s.dept} ${s.name} ${s.rank}`;
+const staffKey   = s => `${s.name}__${s.dept}`;   // 동명이인 대응 고유키
+
+const TEMPLATES = ["오늘 바쁠 때 도와줘서 정말 고마워요!","항상 꼼꼼하게 챙겨줘서 감사해요 🙏","밝은 에너지로 팀 분위기 살려줬어요!","어려운 일 맡아줘서 정말 힘이 됐어요 💪","따뜻한 말 한마디가 큰 위로가 됐어요 🌱","묵묵히 해줘서 감사해요, 덕분에 잘 됐어요!"];
+const TOAST_MSGS = ["앗! 선교단이 쏘는 이달의 깜짝 간식 당첨 기회도 올라갔어요! 🍿","이달의 따뜻한 사연으로 선정되면 선교단 특별 선물을 드립니다! 🎁","감사가 쌓일수록 당첨 확률 UP! 계속 남겨봐요 💚","선교단이 여러분의 감사를 응원하고 있어요! 🙌"];
+const GOAL_TEMP = 100;
+
+if (!window._appState) {
+  window._appState = { temps:{}, inbox:{}, prayerBox:{}, daily:{} };
+  STAFF.forEach(s => {
+    const k = staffKey(s);
+    window._appState.temps[k] = 36.5;
+    window._appState.inbox[k] = [];
+    window._appState.prayerBox[k] = [];
+  });
+}
+
+// ── Particles ────────────────────────────────────────────────
+let pid = 0;
+function useParticles() {
+  const [ps,setPs] = useState([]);
+  const raf = useRef(); const act = useRef(false);
+  const burst = useCallback((cx,cy,cnt=60) => {
+    const cols = ["#2d7a4f","#5bc490","#ffd700","#ff6b6b","#a8e6c3","#fff","#ffb347","#c084fc","#60a5fa"];
+    setPs(p => [...p, ...Array.from({length:cnt}, () => {
+      const a = Math.random()*Math.PI*2, sp = 3+Math.random()*9;
+      return {id:pid++,x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-5,color:cols[~~(Math.random()*cols.length)],life:1,size:5+Math.random()*7};
+    })]);
+  },[]);
+  useEffect(() => {
+    if (!ps.length){act.current=false;return;}
+    if (act.current) return; act.current=true;
+    const step = () => {
+      setPs(p => {
+        const n = p.map(q=>({...q,x:q.x+q.vx,y:q.y+q.vy,vy:q.vy+0.35,life:q.life-0.022})).filter(q=>q.life>0);
+        if (!n.length) act.current=false; return n;
+      });
+      if (act.current) raf.current=requestAnimationFrame(step);
+    };
+    raf.current=requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf.current);
+  },[ps.length>0]);
+  return {ps,burst};
+}
+
+// ── BigThermometer ───────────────────────────────────────────
+function BigThermometer({temp,label}) {
+  const pct = Math.min(Math.max((temp-36.5)/(GOAL_TEMP-36.5),0),1);
+  const col = pct>.8?"#ff6b35":pct>.5?"#f59e0b":"#2d7a4f";
+  return (
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+      <div style={{fontWeight:900,color:col,fontSize:15,transition:"color .5s",textAlign:"center"}}>{label}</div>
+      <div style={{fontSize:28,fontWeight:900,color:col,letterSpacing:-1,transition:"color .5s"}}>{temp.toFixed(1)}°C</div>
+      <div style={{position:"relative",width:36,height:170}}>
+        <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",top:0,width:20,height:150,background:"#e0f2e9",borderRadius:10,overflow:"hidden",border:"2px solid #a8e6c3"}}>
+          <div style={{position:"absolute",bottom:0,width:"100%",height:`${pct*100}%`,background:pct>.8?"linear-gradient(to top,#ff6b35,#ffd700)":pct>.5?"linear-gradient(to top,#f59e0b,#5bc490)":"linear-gradient(to top,#2d7a4f,#a8e6c3)",transition:"height .9s cubic-bezier(.4,2,.6,1)",borderRadius:10}}/>
+        </div>
+        <div style={{position:"absolute",bottom:-16,left:"50%",transform:"translateX(-50%)",width:36,height:36,borderRadius:"50%",background:col,border:"3px solid white",boxShadow:`0 0 0 3px ${col}44`,transition:"background .5s"}}/>
+        {[50,70,GOAL_TEMP].map(m => {
+          const p=(m-36.5)/(GOAL_TEMP-36.5);
+          return <div key={m} style={{position:"absolute",right:-28,top:`${(1-p)*150}px`,fontSize:9,color:"#999",fontWeight:700}}>{m===GOAL_TEMP?"🏆":`${m}°`}</div>;
+        })}
+      </div>
+      <div style={{marginTop:22,width:"100%",maxWidth:280}}>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#888",marginBottom:4}}><span>36.5°C</span><span>목표 {GOAL_TEMP}°C 🏆</span></div>
+        <div style={{height:8,background:"#e0f2e9",borderRadius:4,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${pct*100}%`,background:"linear-gradient(to right,#2d7a4f,#5bc490)",borderRadius:4,transition:"width .9s cubic-bezier(.4,2,.6,1)"}}/>
+        </div>
+        <div style={{textAlign:"center",fontSize:11,color:"#2d7a4f",marginTop:4,fontWeight:700}}>목표까지 {Math.max(0,GOAL_TEMP-temp).toFixed(1)}°C 남았어요 ✨</div>
+      </div>
+    </div>
+  );
+}
+
+// ── StaffSearch ──────────────────────────────────────────────
+function StaffSearch({value, onChange, excludeKey}) {
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const ref = useRef();
+
+  // value는 staffObj or null
+  useEffect(() => { if (!value) setQ(""); }, [value]);
+  useEffect(() => {
+    const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  },[]);
+
+  const list = STAFF.filter(s => {
+    if (excludeKey && staffKey(s) === excludeKey) return false;
+    const lq = q.toLowerCase();
+    return s.name.includes(q) || s.dept.includes(q) || s.rank.includes(q) || staffLabel(s).includes(q);
+  }).slice(0,10);
+
+  const selectedLabel = value ? staffLabel(value) : "";
+
+  return (
+    <div ref={ref} style={{position:"relative"}}>
+      <div style={{position:"relative"}}>
+        <input
+          value={value ? selectedLabel : q}
+          onChange={e => { setQ(e.target.value); onChange(null); setOpen(true); }}
+          onFocus={() => { if (!value) setOpen(true); }}
+          onClick={() => { if (value) { onChange(null); setQ(""); setOpen(true); } }}
+          placeholder="이름 또는 부서로 검색..."
+          style={{width:"100%",padding:"11px 36px 11px 14px",border:`2px solid ${value?"#2d7a4f":"#d4f0e0"}`,borderRadius:12,fontSize:13,outline:"none",boxSizing:"border-box",color:"#333",background:value?"#f0fdf4":"white"}}
+        />
+        {value && <span style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",fontSize:16}}>✅</span>}
+      </div>
+      {open && list.length > 0 && (
+        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,background:"white",borderRadius:12,boxShadow:"0 8px 24px #2d7a4f33",zIndex:50,overflow:"hidden",border:"1.5px solid #d4f0e0",maxHeight:260,overflowY:"auto"}}>
+          {list.map(s => (
+            <div key={staffKey(s)} onClick={() => { onChange(s); setQ(""); setOpen(false); }}
+              style={{padding:"10px 14px",cursor:"pointer",fontSize:13,color:"#333",borderBottom:"1px solid #f0faf4",background:"white"}}
+              onMouseEnter={e=>e.currentTarget.style.background="#f0fdf4"}
+              onMouseLeave={e=>e.currentTarget.style.background="white"}>
+              <span style={{fontWeight:700,color:"#2d7a4f"}}>{s.name}</span>
+              <span style={{color:"#aaa",fontSize:11,marginLeft:6}}>{s.dept} · {s.rank}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {open && q && list.length === 0 && (
+        <div style={{position:"absolute",top:"calc(100% + 4px)",left:0,right:0,background:"white",borderRadius:12,boxShadow:"0 4px 16px #2d7a4f22",zIndex:50,padding:"12px 14px",fontSize:13,color:"#aaa",border:"1.5px solid #d4f0e0"}}>검색 결과가 없어요</div>
+      )}
+    </div>
+  );
+}
+
+// ── LetterCard ───────────────────────────────────────────────
+function LetterCard({letter, index}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div onClick={() => setOpen(o=>!o)} style={{background:"white",border:"1.5px solid #e0f2e9",borderRadius:18,padding:"14px 16px",cursor:"pointer",transition:"all .25s",animation:`fadeIn .3s ${index*0.06}s both`}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:open?10:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:36,height:36,borderRadius:"50%",background:"linear-gradient(135deg,#2d7a4f,#5bc490)",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontWeight:800,fontSize:15,flexShrink:0}}>
+            {(letter.fromName||"?")[0]}
+          </div>
+          <div>
+            <div style={{fontWeight:800,color:"#2d7a4f",fontSize:13}}>{letter.fromName} <span style={{fontWeight:400,color:"#aaa",fontSize:11}}>{letter.fromRank}</span></div>
+            <div style={{fontSize:11,color:"#bbb"}}>{letter.fromDept} · {letter.date}</div>
+          </div>
+        </div>
+        <span style={{color:"#bbb",fontSize:14,transition:"transform .2s",display:"block",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▾</span>
+      </div>
+      {!open && (
+        <div style={{fontSize:13,color:"#666",marginTop:8,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",paddingLeft:46}}>
+          {letter.template||letter.custom||"따뜻한 감사를 전했어요 💚"}
+        </div>
+      )}
+      {open && (
+        <div style={{paddingLeft:4,display:"flex",flexDirection:"column",gap:8,marginTop:4}}>
+          {letter.template && <div style={{background:"#f8fffe",borderRadius:10,padding:"10px 12px",fontSize:13,color:"#333",border:"1px solid #e0f2e9"}}>💬 {letter.template}</div>}
+          {letter.custom && <div style={{background:"#fafafa",borderRadius:10,padding:"10px 12px",fontSize:13,color:"#555",fontStyle:"italic",border:"1px solid #f0f0f0"}}>✏️ {letter.custom}</div>}
+          {!letter.template && !letter.custom && <div style={{fontSize:13,color:"#aaa",textAlign:"center",padding:"8px 0"}}>따뜻한 마음을 전했어요 💚</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── InboxModal ───────────────────────────────────────────────
+function InboxModal({userKey, userName, onClose, onRead}) {
+  const letters = window._appState.inbox[userKey] || [];
+  useEffect(() => {
+    (window._appState.inbox[userKey]||[]).forEach(l=>l.read=true);
+    onRead();
+  },[]);
+  return (
+    <div style={{position:"fixed",inset:0,background:"#00000066",zIndex:400,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{background:"#f8fffe",borderRadius:"28px 28px 0 0",padding:"0 0 40px",width:"100%",maxWidth:430,animation:"slideUp .38s cubic-bezier(.4,0,.2,1)",maxHeight:"82dvh",display:"flex",flexDirection:"column"}}>
+        <div style={{padding:"16px 20px 0"}}>
+          <div style={{width:40,height:4,background:"#ddd",borderRadius:2,margin:"0 auto 18px"}}/>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:22}}>💌</span>
+              <div style={{fontWeight:900,color:"#2d7a4f",fontSize:17}}>내 쪽지함</div>
+            </div>
+            <button onClick={onClose} style={{background:"#e8f8f0",border:"none",borderRadius:20,padding:"7px 16px",color:"#2d7a4f",fontWeight:700,fontSize:13,cursor:"pointer"}}>닫기</button>
+          </div>
+          <div style={{fontSize:12,color:"#aaa",marginBottom:14}}>총 {letters.length}개의 감사 쪽지</div>
+        </div>
+        <div style={{flex:1,overflowY:"auto",padding:"0 16px",display:"flex",flexDirection:"column",gap:10}}>
+          {letters.length===0 ? (
+            <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10,color:"#bbb",padding:"48px 0"}}>
+              <div style={{fontSize:48}}>📭</div>
+              <div style={{fontWeight:700,fontSize:15}}>아직 받은 쪽지가 없어요</div>
+              <div style={{fontSize:13}}>동료들이 곧 따뜻한 마음을 보내줄 거예요 🌱</div>
+            </div>
+          ) : (
+            [...letters].reverse().map((l,i)=><LetterCard key={i} letter={l} index={i}/>)
+          )}
+        </div>
+        <div style={{margin:"14px 16px 0",background:"#fffbeb",borderRadius:14,padding:"11px 14px",border:"1px solid #fde68a"}}>
+          <div style={{fontSize:11,color:"#92400e",lineHeight:1.7}}>
+            🔒 <strong>개인정보 보호 안내</strong><br/>
+            입력하신 '기도와 소망'은 수신자에게 전달되지 않으며,<br/>
+            밀알디아코니아연구소에서만 안전하게 열람 및 기도합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Toast ────────────────────────────────────────────────────
+function Toast({msg,visible}) {
+  return (
+    <div style={{position:"fixed",bottom:28,left:"50%",transform:`translateX(-50%) translateY(${visible?0:80}px)`,opacity:visible?1:0,transition:"all .45s cubic-bezier(.4,2,.6,1)",background:"linear-gradient(135deg,#2d7a4f,#5bc490)",color:"white",borderRadius:18,padding:"13px 20px",fontSize:13,fontWeight:700,maxWidth:340,width:"calc(100% - 40px)",textAlign:"center",boxShadow:"0 6px 24px #2d7a4f55",zIndex:300,lineHeight:1.5,pointerEvents:"none"}}>
+      {msg}
+    </div>
+  );
+}
+
+// ── Main App ─────────────────────────────────────────────────
+export default function App() {
+  const [step, setStep] = useState("name");
+  const [userObj, setUserObj] = useState(null);   // 선택된 직원 객체
+  const [myTemp, setMyTemp] = useState(36.5);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [customMsg, setCustomMsg] = useState("");
+  const [recipient, setRecipient] = useState(null); // 직원 객체
+  const [showPrayer, setShowPrayer] = useState(false);
+  const [prayerText, setPrayerText] = useState("");
+  const [showGoalPopup, setShowGoalPopup] = useState(false);
+  const [showInbox, setShowInbox] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [dailyCount, setDailyCount] = useState(0);
+  const [submittedRecipient, setSubmittedRecipient] = useState(null);
+  const [toast, setToast] = useState({visible:false,msg:""});
+  const btnRef = useRef();
+  const {ps, burst} = useParticles();
+
+  const showToast = msg => { setToast({visible:true,msg}); setTimeout(()=>setToast(t=>({...t,visible:false})),3800); };
+
+  const myKey = userObj ? staffKey(userObj) : null;
+
+  const refreshUnread = useCallback(() => {
+    if (!myKey) return;
+    setUnreadCount((window._appState.inbox[myKey]||[]).filter(l=>!l.read).length);
+  },[myKey]);
+
+  const handleStart = () => {
+    if (!userObj) return;
+    const k = staffKey(userObj);
+    if (!window._appState.temps[k]) { window._appState.temps[k]=36.5; window._appState.inbox[k]=[]; window._appState.prayerBox[k]=[]; }
+    const today = new Date().toDateString();
+    const saved = window._appState.daily[k];
+    setDailyCount(saved?.date===today ? saved.count : 0);
+    setMyTemp(window._appState.temps[k]);
+    setUnreadCount((window._appState.inbox[k]||[]).filter(l=>!l.read).length);
+    setStep("main");
+  };
+
+
+
+  const handleSubmit = () => {
+    const rect = btnRef.current?.getBoundingClientRect();
+    const cx = rect ? rect.left+rect.width/2 : window.innerWidth/2;
+    const cy = rect ? rect.top+rect.height/2 : window.innerHeight/2;
+    const today = new Date().toDateString();
+    const newCount = dailyCount+1;
+    window._appState.daily[myKey] = {date:today,count:newCount};
+    setDailyCount(newCount);
+    const newMyTemp = +(myTemp+1).toFixed(1);
+    window._appState.temps[myKey] = newMyTemp;
+    setMyTemp(newMyTemp);
+
+    if (recipient) {
+      const rk = staffKey(recipient);
+      if (!window._appState.temps[rk]) window._appState.temps[rk]=36.5;
+      window._appState.temps[rk] = +(window._appState.temps[rk]+1).toFixed(1);
+      if (!window._appState.inbox[rk]) window._appState.inbox[rk]=[];
+      window._appState.inbox[rk].push({
+        fromName: userObj.name, fromDept: userObj.dept, fromRank: userObj.rank,
+        template: selectedTemplate!==null ? TEMPLATES[selectedTemplate] : null,
+        custom: customMsg.trim()||null,
+        date: new Date().toLocaleDateString("ko-KR",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}),
+        read: false,
+      });
+      if (prayerText.trim()) {
+        if (!window._appState.prayerBox[myKey]) window._appState.prayerBox[myKey]=[];
+        window._appState.prayerBox[myKey].push({from:userObj.name,to:recipient.name,prayer:prayerText.trim(),date:new Date().toISOString()});
+      }
+    }
+
+    setSubmittedRecipient(recipient);
+    burst(cx,cy); setTimeout(()=>burst(cx-70,cy-90),180); setTimeout(()=>burst(cx+70,cy-70),320);
+    setStep("done");
+
+    if (newMyTemp>=GOAL_TEMP) {
+      setTimeout(()=>{
+        [0,150,300,450,600,750].forEach(d=>setTimeout(()=>burst(window.innerWidth*(.2+Math.random()*.6),window.innerHeight*(.15+Math.random()*.5),90),d));
+        setShowGoalPopup(true);
+      },600);
+    } else {
+      setTimeout(()=>showToast(TOAST_MSGS[~~(Math.random()*TOAST_MSGS.length)]),900);
+    }
+  };
+
+  const resetForm = () => {
+    setStep("main"); setSelectedTemplate(null); setCustomMsg(""); setRecipient(null);
+    setShowPrayer(false); setPrayerText(""); setSubmittedRecipient(null);
+  };
+
+  const canSubmit = dailyCount < 2;
+  const formValid = selectedTemplate!==null || customMsg.trim();
+
+  // ── 이름 선택 화면 ──
+  if (step==="name") return (
+    <div style={{minHeight:"100dvh",background:"linear-gradient(160deg,#e8f8f0,#f5fff8 60%,#eaf4ff)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:28,maxWidth:430,margin:"0 auto",fontFamily:"'Noto Sans KR',sans-serif"}}>
+      <div style={{fontSize:56,marginBottom:12}}>🌱</div>
+      <div style={{fontWeight:900,color:"#2d7a4f",fontSize:24,marginBottom:6}}>감사해U</div>
+      <div style={{color:"#5bc490",fontSize:13,marginBottom:32}}>Pray & Thanks · 밀알복지재단</div>
+      <div style={{background:"white",borderRadius:24,padding:"28px 24px",width:"100%",boxShadow:"0 4px 24px #2d7a4f22"}}>
+        <div style={{fontWeight:800,color:"#2d7a4f",fontSize:16,marginBottom:6,textAlign:"center"}}>반가워요! 이름을 찾아주세요 😊</div>
+        <div style={{color:"#888",fontSize:13,marginBottom:18,textAlign:"center"}}>이름 또는 부서로 검색하세요</div>
+        <StaffSearch value={userObj} onChange={setUserObj} excludeKey={null}/>
+        {userObj && (
+          <div style={{background:"#f0fdf4",borderRadius:12,padding:"12px 14px",marginTop:12,fontSize:13,color:"#2d7a4f",fontWeight:700,border:"1.5px solid #d4f0e0"}}>
+            ✅ {userObj.dept} · <strong>{userObj.name}</strong> {userObj.rank}
+          </div>
+        )}
+        <button onClick={handleStart} style={{width:"100%",padding:"14px",background:userObj?"linear-gradient(135deg,#2d7a4f,#5bc490)":"#ccc",color:"white",border:"none",borderRadius:14,fontWeight:800,fontSize:16,cursor:userObj?"pointer":"not-allowed",marginTop:14}}>
+          시작하기 🌿
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{minHeight:"100dvh",background:"linear-gradient(160deg,#e8f8f0,#f5fff8 60%,#eaf4ff)",fontFamily:"'Noto Sans KR',sans-serif",maxWidth:430,margin:"0 auto",position:"relative",overflowX:"hidden"}}>
+      {ps.map(p=><div key={p.id} style={{position:"fixed",left:p.x,top:p.y,width:p.size,height:p.size,borderRadius:"50%",background:p.color,opacity:p.life,pointerEvents:"none",transform:"translate(-50%,-50%)",zIndex:9999}}/>)}
+
+      {/* Header */}
+      <div style={{background:"linear-gradient(135deg,#2d7a4f,#4caf80)",padding:"16px 18px 14px",borderRadius:"0 0 26px 26px",boxShadow:"0 4px 20px #2d7a4f33"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <span style={{fontSize:22}}>🌱</span>
+          <div>
+            <div style={{color:"white",fontWeight:900,fontSize:18,letterSpacing:-0.5}}>감사해U</div>
+            <div style={{color:"#c8f0dc",fontSize:10}}>Pray & Thanks · 밀알복지재단</div>
+          </div>
+          <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:8}}>
+            <button onClick={()=>setShowInbox(true)} style={{position:"relative",background:"rgba(255,255,255,.2)",border:"none",borderRadius:"50%",width:38,height:38,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18}}>
+              💌
+              {unreadCount>0 && (
+                <span style={{position:"absolute",top:-4,right:-4,background:"#ef4444",color:"white",borderRadius:"50%",minWidth:18,height:18,fontSize:11,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 4px",boxShadow:"0 1px 4px #0004",animation:"badgePop .4s cubic-bezier(.4,2,.6,1)"}}>
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+            <div style={{background:"rgba(255,255,255,.18)",borderRadius:20,padding:"5px 12px"}}>
+              <div style={{color:"white",fontWeight:700,fontSize:13}}>{userObj.name}</div>
+              <div style={{color:"#c8f0dc",fontSize:10}}>{userObj.dept}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{padding:"18px 16px 80px"}}>
+
+        {/* MAIN */}
+        {step==="main" && (
+          <>
+            <div style={{background:"white",borderRadius:24,padding:"22px 20px 20px",boxShadow:"0 2px 20px #2d7a4f18",marginBottom:14,display:"flex",flexDirection:"column",alignItems:"center"}}>
+              <BigThermometer temp={myTemp} label={`${userObj.name}님의 감사 온도 🌡️`}/>
+            </div>
+            {canSubmit ? (
+              <button onClick={()=>setStep("form")} style={{width:"100%",padding:"16px",background:"linear-gradient(135deg,#2d7a4f,#5bc490)",color:"white",border:"none",borderRadius:18,fontWeight:800,fontSize:17,cursor:"pointer",boxShadow:"0 4px 18px #2d7a4f44",marginBottom:12}}>
+                💚 오늘의 감사 남기기 {dailyCount===1?"(오늘 1회 남음)":""}
+              </button>
+            ) : (
+              <div style={{background:"#fff7ed",border:"2px solid #fed7aa",borderRadius:18,padding:"15px",textAlign:"center",marginBottom:12}}>
+                <div style={{fontSize:20,marginBottom:4}}>🌙</div>
+                <div style={{fontWeight:800,color:"#ea580c",fontSize:14,marginBottom:3}}>오늘의 감사는 모두 남겼어요!</div>
+                <div style={{fontSize:12,color:"#9a3412",lineHeight:1.6}}>하루 최대 2회(+2°C) · 내일 또 만나요 🌱</div>
+              </div>
+            )}
+            <div style={{background:"white",borderRadius:18,padding:"14px 16px",boxShadow:"0 2px 12px #2d7a4f14"}}>
+              <div style={{fontWeight:800,color:"#2d7a4f",fontSize:13,marginBottom:8}}>🏆 달성 리워드</div>
+              {[{t:50,icon:"☕",desc:"선교단 깜짝 간식 추첨 기회 ×3"},{t:70,icon:"🎁",desc:"이달의 따뜻한 사연 후보 등록"},{t:GOAL_TEMP,icon:"🌴",desc:"감사해U 특별 반차 획득!"}].map(r=>(
+                <div key={r.t} style={{display:"flex",alignItems:"center",gap:10,padding:"7px 0",borderBottom:"1px solid #f0faf4"}}>
+                  <div style={{fontSize:20}}>{r.icon}</div>
+                  <div>
+                    <span style={{fontWeight:700,color:myTemp>=r.t?"#2d7a4f":"#bbb",fontSize:13}}>{r.t}°C {myTemp>=r.t?"✅":""}</span>
+                    <div style={{fontSize:12,color:myTemp>=r.t?"#555":"#ccc"}}>{r.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* FORM */}
+        {step==="form" && (
+          <div style={{animation:"fadeIn .3s"}}>
+            <button onClick={resetForm} style={{background:"none",border:"none",color:"#2d7a4f",fontWeight:700,fontSize:14,cursor:"pointer",marginBottom:12,padding:"4px 0"}}>← 돌아가기</button>
+            <div style={{background:"white",borderRadius:20,padding:18,boxShadow:"0 2px 16px #2d7a4f18",marginBottom:16}}>
+              <div style={{fontWeight:800,color:"#2d7a4f",fontSize:15,marginBottom:14}}>🌿 Step 1. 소확감 남기기</div>
+              <div style={{marginBottom:14}}>
+                <div style={{fontSize:13,fontWeight:700,color:"#555",marginBottom:8}}>누구에게 감사를 전할까요?</div>
+                <StaffSearch value={recipient} onChange={setRecipient} excludeKey={myKey}/>
+                {recipient && (
+                  <div style={{marginTop:8,fontSize:12,color:"#2d7a4f",background:"#f0fdf4",borderRadius:8,padding:"8px 12px"}}>
+                    📨 {recipient.dept} · {recipient.name} {recipient.rank}님께 전달됩니다
+                  </div>
+                )}
+              </div>
+              <div style={{marginBottom:14}}>
+                <div style={{fontSize:13,fontWeight:700,color:"#555",marginBottom:8}}>오늘의 감사 상황을 골라봐요!</div>
+                <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                  {TEMPLATES.map((t,i)=>(
+                    <button key={i} onClick={()=>setSelectedTemplate(i)} style={{padding:"10px 14px",borderRadius:12,border:`2px solid ${selectedTemplate===i?"#2d7a4f":"#e0f2e9"}`,background:selectedTemplate===i?"#f0fdf4":"white",color:selectedTemplate===i?"#2d7a4f":"#555",fontWeight:selectedTemplate===i?700:400,fontSize:13,cursor:"pointer",textAlign:"left",transition:"all .2s"}}>
+                      {selectedTemplate===i?"✅ ":"○ "}{t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:"#555",marginBottom:8}}>✏️ 직접 한 마디 더 (선택)</div>
+                <textarea value={customMsg} onChange={e=>setCustomMsg(e.target.value)} placeholder="따뜻한 한 마디를 남겨보세요..." rows={3} style={{width:"100%",padding:"11px 14px",border:"2px solid #d4f0e0",borderRadius:12,fontSize:14,outline:"none",resize:"none",boxSizing:"border-box",color:"#333",fontFamily:"inherit"}}/>
+              </div>
+            </div>
+            <button onClick={()=>{if(formValid)setShowPrayer(true);}} style={{width:"100%",padding:"14px",background:formValid?"linear-gradient(135deg,#2d7a4f,#5bc490)":"#ccc",color:"white",border:"none",borderRadius:16,fontWeight:800,fontSize:16,cursor:formValid?"pointer":"not-allowed",marginBottom:6}}>
+              다음 단계로 →
+            </button>
+            {!formValid && <div style={{textAlign:"center",fontSize:12,color:"#f87171"}}>감사 내용을 선택하거나 입력해 주세요!</div>}
+          </div>
+        )}
+
+        {/* DONE */}
+        {step==="done" && (
+          <div style={{textAlign:"center",animation:"fadeIn .5s"}}>
+            <div style={{fontSize:58,marginBottom:10}}>🎉</div>
+            <div style={{fontWeight:900,color:"#2d7a4f",fontSize:21,marginBottom:6}}>감사가 전달됐어요!</div>
+            <div style={{color:"#666",fontSize:14,lineHeight:1.9,marginBottom:20}}>
+              {submittedRecipient
+                ? <><span style={{color:"#2d7a4f",fontWeight:800}}>나의 온도</span>와 <span style={{color:"#2d7a4f",fontWeight:800}}>{submittedRecipient.name}님의 온도</span>가<br/>함께 1도 올라갔어요! 🔥</>
+                : "소중한 감사가 전달됐어요 💚"}
+            </div>
+            <div style={{background:"white",borderRadius:24,padding:"22px 20px",boxShadow:"0 2px 20px #2d7a4f18",marginBottom:16,display:"flex",flexDirection:"column",alignItems:"center"}}>
+              <BigThermometer temp={myTemp} label={`${userObj.name}님의 감사 온도 🌡️`}/>
+            </div>
+            <button onClick={resetForm} style={{width:"100%",padding:"15px",background:"linear-gradient(135deg,#2d7a4f,#5bc490)",color:"white",border:"none",borderRadius:16,fontWeight:800,fontSize:16,cursor:"pointer",boxShadow:"0 4px 14px #2d7a4f44"}}>
+              🌱 또 감사 남기기
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 하단 보안 안내 */}
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:430,background:"rgba(255,251,235,.95)",borderTop:"1px solid #fde68a",padding:"9px 16px",zIndex:100,backdropFilter:"blur(8px)"}}>
+        <div style={{fontSize:10.5,color:"#92400e",lineHeight:1.6,textAlign:"center"}}>
+          ※ 입력하신 '기도와 소망'은 수신자에게 전달되지 않으며,<br/>
+          <strong>밀알디아코니아연구소</strong>에서만 안전하게 열람 및 기도합니다.
+        </div>
+      </div>
+
+      {/* Prayer Bottom Sheet */}
+      {showPrayer && (
+        <div style={{position:"fixed",inset:0,background:"#00000066",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+          <div style={{background:"white",borderRadius:"24px 24px 0 0",padding:"22px 20px 44px",width:"100%",maxWidth:430,animation:"slideUp .35s cubic-bezier(.4,0,.2,1)"}}>
+            <div style={{width:40,height:4,background:"#ddd",borderRadius:2,margin:"0 auto 18px"}}/>
+            <div style={{fontWeight:800,color:"#2d7a4f",fontSize:16,marginBottom:4}}>🙏 Step 2. 기도와 소망 나누기</div>
+            <div style={{color:"#888",fontSize:13,lineHeight:1.6,marginBottom:6}}>밀알가족이 함께 응원하고 기도할 소망이 있다면 나눠주세요. <span style={{color:"#bbb"}}>(선택)</span></div>
+            <div style={{background:"#fffbeb",borderRadius:10,padding:"9px 12px",fontSize:11,color:"#92400e",marginBottom:14,lineHeight:1.6}}>
+              🔒 이 내용은 수신자에게 전달되지 않으며 연구소에서만 열람합니다.
+            </div>
+            <textarea value={prayerText} onChange={e=>setPrayerText(e.target.value)} placeholder="예) 이번 달 후원 목표를 꼭 달성했으면 좋겠어요..." rows={3} style={{width:"100%",padding:"12px 14px",border:"2px solid #d4f0e0",borderRadius:14,fontSize:14,outline:"none",resize:"none",boxSizing:"border-box",marginBottom:14,fontFamily:"inherit",color:"#333"}}/>
+            <button ref={btnRef} onClick={()=>{setShowPrayer(false);handleSubmit();}} style={{width:"100%",padding:"15px",background:"linear-gradient(135deg,#2d7a4f,#5bc490)",color:"white",border:"none",borderRadius:16,fontWeight:800,fontSize:17,cursor:"pointer",boxShadow:"0 4px 16px #2d7a4f44"}}>
+              💚 마음 전하기
+            </button>
+            <button onClick={()=>setShowPrayer(false)} style={{width:"100%",marginTop:10,padding:"12px",background:"none",border:"2px solid #d4f0e0",borderRadius:14,color:"#888",fontWeight:600,fontSize:14,cursor:"pointer"}}>
+              ← 수정할게요
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Goal Popup */}
+      {showGoalPopup && (
+        <div style={{position:"fixed",inset:0,background:"#00000077",zIndex:500,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+          <div style={{background:"white",borderRadius:28,padding:"32px 24px",maxWidth:320,width:"100%",textAlign:"center",animation:"popIn .5s cubic-bezier(.4,2,.6,1)",boxShadow:"0 8px 48px #2d7a4f66"}}>
+            <div style={{fontSize:52,marginBottom:8}}>🏆</div>
+            <div style={{fontWeight:900,color:"#2d7a4f",fontSize:21,marginBottom:8}}>목표 달성! 🎉</div>
+            <div style={{background:"linear-gradient(135deg,#2d7a4f,#5bc490)",borderRadius:16,padding:"14px 18px",marginBottom:16}}>
+              <div style={{color:"white",fontWeight:900,fontSize:14,lineHeight:1.7}}>🌴 감사해U 특별 반차(휴가)를<br/>획득하셨습니다!</div>
+            </div>
+            <div style={{color:"#666",fontSize:13,lineHeight:1.7,marginBottom:18}}>{userObj.name}님, 꾸준한 감사의 힘으로<br/>목표를 이뤄냈어요! <span style={{color:"#2d7a4f",fontWeight:700}}>정말 수고하셨어요 💚</span></div>
+            <button onClick={()=>setShowGoalPopup(false)} style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#2d7a4f,#5bc490)",color:"white",border:"none",borderRadius:16,fontWeight:800,fontSize:15,cursor:"pointer"}}>와! 감사합니다 🌱</button>
+          </div>
+        </div>
+      )}
+
+      {/* Inbox Modal */}
+      {showInbox && <InboxModal userKey={myKey} userName={userObj.name} onClose={()=>{setShowInbox(false);refreshUnread();}} onRead={refreshUnread}/>}
+
+      <Toast msg={toast.msg} visible={toast.visible}/>
+
+      <style>{`
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+        @keyframes popIn{from{opacity:0;transform:scale(.75)}to{opacity:1;transform:scale(1)}}
+        @keyframes badgePop{from{transform:scale(0)}to{transform:scale(1)}}
+        *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+        textarea,input{-webkit-appearance:none}
+      `}</style>
+    </div>
+  );
+}
